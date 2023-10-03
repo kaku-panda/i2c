@@ -9,7 +9,7 @@ module i2c_if(
     input  [2:0]  wire trans,
     output        wire scl,
     inout         wire sda,
-    input         wire read_data,
+    input  [63:0] wire read_data,
     output        wire busy,
     output        wire enable
 );
@@ -18,7 +18,7 @@ module i2c_if(
     reg [6:0]  slave_addr_reg;
     reg        rw_reg;
     reg [7:0]  register_addr_reg;
-    reg [63:0] data_reg;
+    reg [63:0] write_data_reg;
 
     // output reg
     reg [63:0] read_data_reg;
@@ -26,7 +26,7 @@ module i2c_if(
     reg        scl_reg;
 
     // ctrl reg
-    reg [4:0] state;
+    reg [4:0] state = IDLE;
     reg [4:0] prev_state;
     reg [2:0] data_cnt_reg;
     reg [2:0] trans_cnt_reg;
@@ -63,11 +63,13 @@ module i2c_if(
             rw_reg            <= 1'b0;
             register_addr_reg <= 8'd0;
             write_data_reg    <= 64'd0;
+            read_data_reg     <= read_data_reg;
         end
         if(state == START)begin
             rw_reg            <= rw;
             write_data_reg    <= write_data;
             register_addr_reg <= register_addr;
+            read_data_reg     <= 64'd0;
         end
     end
 
